@@ -1,0 +1,8 @@
+
+body{
+    background: pink;
+}
+#ballCanvas{
+    display: block;
+    margin: 40px auto 20px auto;
+}

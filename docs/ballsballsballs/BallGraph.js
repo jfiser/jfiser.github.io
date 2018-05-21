@@ -1,5 +1,6 @@
-var canvas = document.getElementById("myCanvas");
+var canvas = document.getElementById("ballCanvas");
 var ctx = canvas.getContext("2d");
+//ctx.scale(1, 1);
 
 var objArray = [];
 var paused = false;
@@ -11,9 +12,6 @@ var upHeld = false;
 var rightHeld = false;
 var downHeld = false;
 
-var beep = new Audio('beep');
-beep.volume = 0.002
-
 var gravityOn = false;
 var dragOn = true;
 var soundOn = true;
@@ -22,6 +20,7 @@ var clearCanv = true;
 
 var bigBalls = false;
 var CENTER_X = canvas.width/2, CENTER_Y = 222;
+var MAX_CANVAS_W = 700;
 
 document.addEventListener("keydown", keyDownHandler);
 document.addEventListener("keyup", keyUpHandler);
@@ -38,8 +37,6 @@ function keyDownHandler(event) {
     } else if (event.keyCode == 71) { // g
         gravityOn = !gravityOn;
         dragOn = !dragOn;
-    } else if (event.keyCode == 77) { // m
-        soundOn = !soundOn;
     } else if (event.keyCode == 65) { // A
         leftHeld = true;
     } else if (event.keyCode == 87) { // W
@@ -193,8 +190,9 @@ function drawObjects() {
 }
 
 function draw() {
-
-    if(clearCanv) clearCanvas();
+    if(clearCanv){
+        clearCanvas();
+    }
     canvasBackground();
 
     if (!paused) {
@@ -209,8 +207,9 @@ function draw() {
     drawObjects();
     staticCollision();
     ballCollision();
-    //logger();
-    requestAnimationFrame(draw);
+    if(!paused){
+        requestAnimationFrame(draw);
+    }
 }
 
 function drawTween() {
@@ -273,62 +272,19 @@ function tweenBallsBackToCircle(){
      // }
     }
 }
-  function tweenBallsReset(){
-    for(var i = 0; i < resetCircleArr.length; i++){
-      TweenLite.to(resetCircleArr[i], .5, {
-        x: resetCircleArr[i].resetCirc_x,
-        y: resetCircleArr[i].resetCirc_y,
+  function tweenBalls(){
+    for(var i = 0; i < objArray.length; i++){
+        TweenLite.to(objArray[i], .5, {
+        x: objArray[i].circle_x,
+        y: objArray[i].circle_y,
         delay: .007*i,
         ease: Expo.easeOut
-      });
+        });
     }
-  }
-  function tweenBalls(){
-  for(var i = 0; i < objArray.length; i++){
-    
-    TweenLite.to(objArray[i], .5, {
-      x: objArray[i].circle_x,
-      y: objArray[i].circle_y,
-      delay: .007*i,
-      ease: Expo.easeOut
-    });
-  }
 }
 
 bigBalls = true;
 
-function setCircles_GOOD(numNodes, radius, ballRadius){
-    var angle, x, y;
-    var spaceBetween = ballRadius + 5; //15; 
-    // center of the circles
-    
-    var k = 5;
-    var i =  1;
-    while ( i < numNodes ) {
-        // number of elements on this circle
-        var numBallsInCircle = k * 5;
-        // angular distance between elements
-        var angle_range = 2 * Math.PI / numBallsInCircle;
-        // every circle is bigger then the previuos of the same amount
-        //var radius = k * 30;
-        var radius = k * (ballRadius + spaceBetween);
-        var j = 0;
-        while ( j < numBallsInCircle  &&  i < numNodes ) {
-            var angle = j * angle_range;
-            var circle_x = Math.round(CENTER_X + radius * Math.cos(angle));
-            var circle_y = Math.round(CENTER_Y + radius * Math.sin(angle));
-
-            var tmpBall = new Ball(CENTER_X, CENTER_Y, circle_x, circle_y, ballRadius);
-            tmpBall.dx = 0;
-            tmpBall.dy = 0;
-            objArray[objArray.length] = tmpBall;    
-            i++;
-            j+=4;
-        }
-        k++;
-    }
-
-}
 var NUM_BALLS = 100;
 function setCirclesToCenter(numNodes, ballRadius){
     var angle, x, y, radius;
@@ -367,9 +323,6 @@ function setCirclesToCenter(numNodes, ballRadius){
         }
         k--;
     }
-}
-function normalizeCircle(){
-    
 }
 function setOuterCircleAdapt(ballRadius){
     var angle, x, y, radius;
@@ -441,10 +394,27 @@ function setCircles(numNodes, ballRadius){
     }
 
 }
+function resizeCanvas(){
+  var canvas_w;
+  if(window.innerWidth <= MAX_CANVAS_W){
+      canvas_w = window.innerWidth;
+  }
+  else{
+    canvas_w = MAX_CANVAS_W;
+  }
+  canvas.style.width = canvas_w + 'px';
+//canvas.style.height = height+'px';
+}
+function addListeners(){
+    window.addEventListener('load', resizeCanvas, false);
+    window.addEventListener('resize', resizeCanvas, false);
+}
+
+
 var BALL_RADIUS = 7;
 setCircles(100, BALL_RADIUS);
 //var k = numNodes<7?1:(numNodes<17?2:(numNodes<32?3:(numNodes<52?4:(numNodes<77?5:6))));
-setCirclesToCenter(28, BALL_RADIUS);
+setCirclesToCenter(1, BALL_RADIUS);
 var resetCircleArr = [], tmpObj;
 for(var i = 0; i < NUM_BALLS; i++){
     if(objArray[i].centerCirc_x == undefined){
@@ -460,6 +430,7 @@ for(var i = 0; i < resetCircleArr.length; i++){
     objArray[resetCircleArr[i].outerCirleIndx].resetCirc_y = resetCircleArr[i].resetCirc_y; 
 }
 
+addListeners();
 drawTween();
 tweenBalls();
 setTimeout(function(){
