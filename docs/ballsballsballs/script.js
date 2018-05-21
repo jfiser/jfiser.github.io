@@ -21,7 +21,7 @@ var soundOn = true;
 var clearCanv = true;
 
 var bigBalls = false;
-var CENTER_X = canvas.width/2, CENTER_Y = canvas.height/2;
+var CENTER_X = canvas.width/2, CENTER_Y = 222;
 
 document.addEventListener("keydown", keyDownHandler);
 document.addEventListener("keyup", keyUpHandler);
@@ -91,7 +91,7 @@ function arrowControls() {
 
 function canvasBackground() {
     //canvas.style.backgroundColor = "rgb(215, 235, 240)";
-    canvas.style.backgroundColor = "rgb(0, 0, 218)";
+    canvas.style.backgroundColor = "rgb(0, 0, 111)";
     
 }
 
@@ -143,7 +143,7 @@ function ballCollision() {
                 return(true);
             }            
         }
-        //wallCollision(objArray[obj1]);
+        wallCollision(objArray[obj1]);
     }
     return(false);
 }
@@ -210,7 +210,7 @@ function draw() {
     staticCollision();
     ballCollision();
     //logger();
-    //requestAnimationFrame(draw);
+    requestAnimationFrame(draw);
 }
 
 function drawTween() {
@@ -225,22 +225,68 @@ function drawTween() {
    requestAnimationFrame(drawTween);
   }
 }
+function getRandomBetween(min, max){
+  return(Math.random() * (max - min) + min);
+}
 function tweenBallsCenter(){
   for(var i = 0; i < objArray.length; i++){
     if(objArray[i].centerCirc_x != undefined){
-      TweenLite.to(objArray[i], 2, {
+      TweenLite.to(objArray[i], getRandomBetween(2, 4), {
         x: objArray[i].centerCirc_x,
         y: objArray[i].centerCirc_y,
+        delay: .007*i,
+        //ease: Linear.easeNone
+        //ease: Linear.easeIn
+        ease: Elastic.easeOut
+        //ease: Bounce.easeIn
+        });
+    }
+    else
+    if(objArray[i].resetCirc_x != undefined){
+      console.log("reset: %o", objArray[i]);
+      TweenLite.to(objArray[i], getRandomBetween(.3,.6), {
+          x: objArray[i].resetCirc_x,
+          y: objArray[i].resetCirc_y,
+          delay: .007*i,
+          //ease: Linear.easeNone
+          ease: Expo.easeIn
+          //ease: Bounce.easeOut
+          //ease: Elastic.easeOut
+          
+      });
+    }
+  }
+}
+function tweenBallsBackToCircle(){
+    for(var i = 0; i < objArray.length; i++){
+      //if(objArray[i].centerCirc_x != undefined){
+        TweenLite.to(objArray[i], getRandomBetween(.3,.6), {
+          x: objArray[i].circle_x,
+          y: objArray[i].circle_y,
+          delay: .007*i,
+          //ease: Linear.easeNone
+          ease: Expo.easeIn
+          //ease: Bounce.easeOut
+          //ease: Elastic.easeOut
+          
+        });
+     // }
+    }
+}
+  function tweenBallsReset(){
+    for(var i = 0; i < resetCircleArr.length; i++){
+      TweenLite.to(resetCircleArr[i], .5, {
+        x: resetCircleArr[i].resetCirc_x,
+        y: resetCircleArr[i].resetCirc_y,
         delay: .007*i,
         ease: Expo.easeOut
       });
     }
   }
-}
-function tweenBalls(){
+  function tweenBalls(){
   for(var i = 0; i < objArray.length; i++){
     
-    TweenLite.to(objArray[i], 2, {
+    TweenLite.to(objArray[i], .5, {
       x: objArray[i].circle_x,
       y: objArray[i].circle_y,
       delay: .007*i,
@@ -260,14 +306,14 @@ function setCircles_GOOD(numNodes, radius, ballRadius){
     var i =  1;
     while ( i < numNodes ) {
         // number of elements on this circle
-        var steps = k * 6;
+        var numBallsInCircle = k * 5;
         // angular distance between elements
-        var angle_range = 2 * Math.PI / steps;
+        var angle_range = 2 * Math.PI / numBallsInCircle;
         // every circle is bigger then the previuos of the same amount
         //var radius = k * 30;
         var radius = k * (ballRadius + spaceBetween);
         var j = 0;
-        while ( j < steps  &&  i < numNodes ) {
+        while ( j < numBallsInCircle  &&  i < numNodes ) {
             var angle = j * angle_range;
             var circle_x = Math.round(CENTER_X + radius * Math.cos(angle));
             var circle_y = Math.round(CENTER_Y + radius * Math.sin(angle));
@@ -283,62 +329,110 @@ function setCircles_GOOD(numNodes, radius, ballRadius){
     }
 
 }
-function setCirclesToCenter(numNodes, radius, ballRadius){
-    var angle, x, y;
+var NUM_BALLS = 100;
+function setCirclesToCenter(numNodes, ballRadius){
+    var angle, x, y, radius;
     var spaceBetween = ballRadius + 5; //15; 
     // center of the circles
-    
-    var k = 1;
-    var i = 0;
 
-    while ( i < numNodes ) {
+    var k = numNodes<7?1:(numNodes<17?2:(numNodes<32?3:(numNodes<52?4:(numNodes<77?5:6))));
+    //var k = numNodes<6?1:(numNodes<16?2:(numNodes<31?3:(numNodes<51?4:(numNodes<76?5:6))));
+    var i = parseInt(NUM_BALLS-numNodes);
+    objArray[i].centerCirc_x = CENTER_X;
+    objArray[i].centerCirc_y = CENTER_Y;
+    i++;
+
+    while ( i < NUM_BALLS ) {
         // number of elements on this circle
-        var steps = k * 6;
+        var numBallsInCircle = k * 5;
         // angular distance between elements
-        var angle_range = 2 * Math.PI / steps;
+        var angle_range = 2 * Math.PI / numBallsInCircle;
         // every circle is bigger then the previuos of the same amount
         //var radius = k * 30;
         var radius = k * (ballRadius + spaceBetween);
         var j = 0;
-        while ( j < steps  &&  i < numNodes ) {
+        if(NUM_BALLS-i < numBallsInCircle){
+            numBallsInCircle = NUM_BALLS-i;
+            angle_range = 2 * Math.PI / numBallsInCircle;
+        }
+        while ( j < numBallsInCircle  &&  i < NUM_BALLS ) {
             var angle = j * angle_range;
-            var circle_x = Math.round(CENTER_X + radius * Math.cos(angle));
-            var circle_y = Math.round(CENTER_Y + radius * Math.sin(angle));
+            var circle_x = Math.round(CENTER_X + radius * Math.cos(angle));// + getRandomBetween(5, 9) );
+            var circle_y = Math.round(CENTER_Y + radius * Math.sin(angle));// + getRandomBetween(4, 14));
 
             objArray[i].centerCirc_x = circle_x;
             objArray[i].centerCirc_y = circle_y;
             i++;
             j++;
         }
-        k++;
+        k--;
     }
-
 }
-
-function setCircles(numNodes, radius, ballRadius){
-    var angle, x, y;
+function normalizeCircle(){
+    
+}
+function setOuterCircleAdapt(ballRadius){
+    var angle, x, y, radius;
     var spaceBetween = ballRadius + 5; //15; 
     // center of the circles
     
     var k = 8;
-    var i = 1;
-    while ( i < numNodes ) {
+    var i = 0;
+
+    while ( i < resetCircleArr.length ) {
         // number of elements on this circle
-        var steps = k * 6;
+        var numBallsInCircle = k * 5;
         // angular distance between elements
-        var angle_range = 2 * Math.PI / steps;
+        var angle_range = 2 * Math.PI / numBallsInCircle;
         // every circle is bigger then the previuos of the same amount
         //var radius = k * 30;
         var radius = k * (ballRadius + spaceBetween);
         var j = 0;
-        while ( j < steps  &&  i < numNodes ) {
+        if(resetCircleArr.length-i < numBallsInCircle){
+            numBallsInCircle = resetCircleArr.length-i;
+            angle_range = 2 * Math.PI / numBallsInCircle;
+        }
+        while ( j < numBallsInCircle  &&  i < resetCircleArr.length ) {
+            var angle = j * angle_range;
+            var circle_x = Math.round(CENTER_X + radius * Math.cos(angle));// + getRandomBetween(5, 9) );
+            var circle_y = Math.round(CENTER_Y + radius * Math.sin(angle));// + getRandomBetween(4, 14));
+            resetCircleArr[i].resetCirc_x = circle_x;
+            resetCircleArr[i].resetCirc_y = circle_y;
+            i++;
+            j++;
+        }
+        k--;
+    }
+}
+function setCircles(numNodes, ballRadius){
+    var angle, x, y, radius;
+    var spaceBetween = ballRadius + 5; //15; 
+    // center of the circles
+    
+    var k = 8;
+    var i = 0;
+    while ( i < numNodes ) {
+        // number of elements on this circle
+        var numBallsInCircle = k * 5;
+        // angular distance between elements
+        var angle_range = 2 * Math.PI / numBallsInCircle;
+        // every circle is bigger then the previuos of the same amount
+        //var radius = k * 30;
+        var radius = k * (ballRadius + spaceBetween);
+        var j = 0;
+        // if 
+        if(numNodes-i < numBallsInCircle){
+            numBallsInCircle = numNodes-i;
+            angle_range = 2 * Math.PI / numBallsInCircle;
+        }
+        while ( j < numBallsInCircle  &&  i < numNodes ) {
             var angle = j * angle_range;
             var circle_x = Math.round(CENTER_X + radius * Math.cos(angle));
             var circle_y = Math.round(CENTER_Y + radius * Math.sin(angle));
 
-            var tmpBall = new Ball(234,460, circle_x, circle_y, ballRadius);
-            tmpBall.dx = 0;
-            tmpBall.dy = 0;
+            var tmpBall = new Ball(CENTER_X,CENTER_Y, circle_x, circle_y, ballRadius);
+            tmpBall.dx = randomDx();
+            tmpBall.dy = randomDy();
             objArray[objArray.length] = tmpBall;    
             i++;
             j++;
@@ -347,15 +441,35 @@ function setCircles(numNodes, radius, ballRadius){
     }
 
 }
+var BALL_RADIUS = 7;
+setCircles(100, BALL_RADIUS);
+//var k = numNodes<7?1:(numNodes<17?2:(numNodes<32?3:(numNodes<52?4:(numNodes<77?5:6))));
+setCirclesToCenter(28, BALL_RADIUS);
+var resetCircleArr = [], tmpObj;
+for(var i = 0; i < NUM_BALLS; i++){
+    if(objArray[i].centerCirc_x == undefined){
+      tmpObj = {};
+      tmpObj.outerCirleIndx = i;
+      resetCircleArr[resetCircleArr.length] = tmpObj;
+    }
+}
+setOuterCircleAdapt(BALL_RADIUS);
 
-setCircles(100, 120, 12);
-setCirclesToCenter(45, 120, 12);
-//draw();
+for(var i = 0; i < resetCircleArr.length; i++){
+    objArray[resetCircleArr[i].outerCirleIndx].resetCirc_x = resetCircleArr[i].resetCirc_x;
+    objArray[resetCircleArr[i].outerCirleIndx].resetCirc_y = resetCircleArr[i].resetCirc_y; 
+}
 
 drawTween();
 tweenBalls();
 setTimeout(function(){
   tweenBallsCenter();
-}, 3000)
+}, 2600);
+setTimeout(function(){
+    tweenBallsBackToCircle();
+}, 7000);
+setTimeout(function(){
+  draw();
+}, 9000);
 
 //*********************** */

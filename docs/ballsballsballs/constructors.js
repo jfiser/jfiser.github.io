@@ -26,7 +26,7 @@ function Ball(start_x, start_y, circle_x, circle_y, radius) {
         // magnitude of velocity vector
         var tmp =  Math.sqrt(this.dx * this.dx + this.dy * this.dy);
         //console.log("tmp: " + tmp)
-        return 1;
+        return tmp;
     };
     this.angle = function() {
         //angle of ball with the x axis
