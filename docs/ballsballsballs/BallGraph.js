@@ -414,7 +414,7 @@ function addListeners(){
 var BALL_RADIUS = 7;
 setCircles(100, BALL_RADIUS);
 //var k = numNodes<7?1:(numNodes<17?2:(numNodes<32?3:(numNodes<52?4:(numNodes<77?5:6))));
-setCirclesToCenter(1, BALL_RADIUS);
+setCirclesToCenter(25, BALL_RADIUS);
 var resetCircleArr = [], tmpObj;
 for(var i = 0; i < NUM_BALLS; i++){
     if(objArray[i].centerCirc_x == undefined){
