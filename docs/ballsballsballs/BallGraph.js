@@ -20,7 +20,7 @@ var clearCanv = true;
 
 var bigBalls = false;
 var CENTER_X = canvas.width/2, CENTER_Y = 222;
-var MAX_CANVAS_W = 700;
+var MAX_CANVAS_W = 420;
 
 document.addEventListener("keydown", keyDownHandler);
 document.addEventListener("keyup", keyUpHandler);
@@ -414,7 +414,7 @@ function addListeners(){
 var BALL_RADIUS = 7;
 setCircles(100, BALL_RADIUS);
 //var k = numNodes<7?1:(numNodes<17?2:(numNodes<32?3:(numNodes<52?4:(numNodes<77?5:6))));
-setCirclesToCenter(25, BALL_RADIUS);
+setCirclesToCenter(29, BALL_RADIUS);
 var resetCircleArr = [], tmpObj;
 for(var i = 0; i < NUM_BALLS; i++){
     if(objArray[i].centerCirc_x == undefined){
